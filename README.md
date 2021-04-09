@@ -9,7 +9,7 @@ Guided project for **Node Auth 2** Module.
 
 ## Project Setup
 
-- [ ] clone this repository.
+- [x] clone this repository.
 - [ ] move inside the project.
 - [ ] type`npm i` to download dependencies.
 - [ ] type `npx knex migrate:latest` to run the migrations.
