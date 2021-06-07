@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const {jwtSecret} = require("../../config/secrets");
 
 module.exports = (req, res, next) => {
   // add code here to verify users are logged in
@@ -8,7 +9,7 @@ module.exports = (req, res, next) => {
     res.status(401).json({ message: "Valid token required" });
   } else {
     //check the token
-    jwt.verify(token, "keepitsecret", (err, decoded) => {
+    jwt.verify(token, jwtSecret, (err, decoded) => {
       if (err) {
         res
           .status(401)

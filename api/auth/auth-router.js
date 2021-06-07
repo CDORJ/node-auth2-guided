@@ -1,12 +1,13 @@
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { jwtSecret } = require("../../config/secrets");
 
-const router = require('express').Router();
+const router = require("express").Router();
 
-const Users = require('../users/users-model.js');
-const checkCredentials = require('./check-payload-middleware');
+const Users = require("../users/users-model.js");
+const checkCredentials = require("./check-payload-middleware");
 
-router.post('/register', checkCredentials, (req, res, next) => {
+router.post("/register", checkCredentials, (req, res, next) => {
   let user = req.body;
 
   // bcrypting the password before saving
@@ -14,16 +15,16 @@ router.post('/register', checkCredentials, (req, res, next) => {
   const hash = bcrypt.hashSync(user.password, rounds);
 
   // never save the plain text password in the db
-  user.password = hash
+  user.password = hash;
 
   Users.add(user)
-    .then(saved => {
+    .then((saved) => {
       res.status(201).json(saved);
     })
     .catch(next); // our custom err handling middleware in server.js will trap this
 });
 
-router.post('/login', checkCredentials, (req, res, next) => {
+router.post("/login", checkCredentials, (req, res, next) => {
   let { username, password } = req.body;
 
   Users.findBy({ username }) // it would be nice to have middleware do this
@@ -33,26 +34,26 @@ router.post('/login', checkCredentials, (req, res, next) => {
 
         res.status(200).json({
           message: `Welcome ${user.username}!`,
-          token
+          token,
         });
       } else {
-        res.status(401).json({ message: 'Invalid Credentials' });
+        res.status(401).json({ message: "Invalid Credentials" });
       }
     })
     .catch(next);
 });
 
-const makeToken = user => {
+const makeToken = (user) => {
   const payload = {
     subject: user.id,
     username: user.usermame,
-    role: user.role
-  }
+    role: user.role,
+  };
   const options = {
-    expiresIn: "300s"
-  }
+    expiresIn: "300s",
+  };
 
-  return jwt.sign(payload,"keepitsecret",options);
-}
+  return jwt.sign(payload, jwtSecret, options);
+};
 
 module.exports = router;
