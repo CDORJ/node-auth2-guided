@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
 
 const router = require('express').Router();
 
@@ -28,8 +29,11 @@ router.post('/login', checkCredentials, (req, res, next) => {
   Users.findBy({ username }) // it would be nice to have middleware do this
     .then(([user]) => {
       if (user && bcrypt.compareSync(password, user.password)) {
+        const token = makeToken(user);
+
         res.status(200).json({
           message: `Welcome ${user.username}!`,
+          token
         });
       } else {
         res.status(401).json({ message: 'Invalid Credentials' });
@@ -37,5 +41,18 @@ router.post('/login', checkCredentials, (req, res, next) => {
     })
     .catch(next);
 });
+
+const makeToken = user => {
+  const payload = {
+    subject: user.id,
+    username: user.usermame,
+    role: user.role
+  }
+  const options = {
+    expiresIn: "300s"
+  }
+
+  return jwt.sign(payload,"keepitsecret",options);
+}
 
 module.exports = router;
